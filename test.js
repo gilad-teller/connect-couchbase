@@ -11,7 +11,7 @@ var assert = require('assert')
     , session = require('express-session')
     , CouchbaseStore = require('./')(session);
 
-var store = new CouchbaseStore({host:"127.0.0.1:8091", bucket:"default"});
+var store = new CouchbaseStore({host:"127.0.0.1:8091", bucket:"default", username: 'admin', password: 'password'});
 
 store.on('connect', function(){
     // #set()
