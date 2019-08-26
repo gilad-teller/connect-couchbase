@@ -12,10 +12,11 @@ var assert = require('assert')
     , CouchbaseStore = require('./')(session);
 
 var store = new CouchbaseStore({host:"127.0.0.1:8091", bucket:"default", username: 'admin', password: 'password'});
+const mockSession = { cookie: { maxAge: 2000 }, name: 'cm' };
 
 store.on('connect', function(){
     // #set()
-    store.set('123', { cookie: { maxAge: 2000 }, name: 'cm' }, function(err, ok){
+    store.set('123', mockSession, function(err, ok){
         assert.ok(!err, '#set() got an error');
         assert.ok(ok, '#set() is not ok');
 
@@ -23,7 +24,7 @@ store.on('connect', function(){
         store.get('123', function(err, data){
             console.log("RETRIEVED: " + data.name);
             assert.ok(!err, '#get() got an error');
-            assert.deepEqual({ cookie: { maxAge: 2000 }, name: 'cm' }, data);
+            assert.deepEqual(mockSession, data);
 
             // #all()
             store.all(function(err, sessions) {
@@ -32,31 +33,36 @@ store.on('connect', function(){
                 }
 
                 if (sessions.length != 0) {
-                    assert.deepEqual({ cookie: { maxAge: 2000 }, name: 'cm' }, sessions[0]);
+                    assert.deepEqual(mockSession, sessions[0]);
                 }
 
-                // #set null
-                store.set('123', { cookie: { maxAge: 2000 }, name: 'cm' }, function(err){
-                    if (err) {
-                        console.log("AN ERROR OCCURRED SETTING SESSION: " + err);
-                    }
+                store.touch('123', mockSession, function(err) {
+                    assert.ok(!err, '#touch() got an error');
 
-                    store.destroy('123', function(err){
+                    // #set null
+                    store.set('123', mockSession, function(err){
                         if (err) {
-                            console.log("AN ERROR OCCURRED DESTROYING SESSION: " + err);
+                            console.log("AN ERROR OCCURRED SETTING SESSION: " + err);
                         }
 
-                        console.log('done');
-                        store.client.disconnect();
-                        process.exit(0);
+                        store.destroy('123', function(err){
+                            if (err) {
+                                console.log("AN ERROR OCCURRED DESTROYING SESSION: " + err);
+                            }
+
+                            store.get('123', function(err, data){
+                                assert.ok(data === undefined, '#get() did not receive an error');
+                                store.client.disconnect();
+                            });
+                        });
                     });
                 });
             });
-            throw new Error('Error in fn');
         });
     });
 });
 
-process.once('uncaughtException', function (err) {
-    assert.ok(err.message === 'Error in fn', '#get() catch wrong error');
+store.on('disconnect', function (err) {
+    console.log('tests complete');
+    process.exit(0);
 });
