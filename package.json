@@ -1,7 +1,7 @@
 {
   "name": "connect-couchbase",
   "description": "Couchbase session store for Connect, updated for Couchnode 3.x",
-  "version": "3.0.0",
+  "version": "3.0.1",
   "author": "Christopher Mina <christopher.mina@gmail.com>",
   "main": "./index.js",
   "contributors": [
