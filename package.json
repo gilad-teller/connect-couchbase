@@ -5,7 +5,8 @@
   "author": "Christopher Mina <christopher.mina@gmail.com>",
   "main": "./index.js",
   "contributors": [
-    "Aaron Harvey <aaron.harvey@onsemi.com>"
+    "Aaron Harvey <aaron.harvey@onsemi.com>",
+	"Gilad Teller <giladteller@gmail.com>
   ],
   "repository": {
     "type": "git",
